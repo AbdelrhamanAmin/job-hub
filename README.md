@@ -1,76 +1,176 @@
-# Order-Payment
+# Job-Hub
 
-### Technologies
+## Objective
+
+Job-Hub is a dynamic job listing filtering system that allows users to apply complex filters efficiently. The system supports filtering by direct fields, related entities, and entity-attribute-value (EAV) models, ensuring a flexible and scalable approach to job searching.
+
+## Technologies
 
 | Type    | Name / Version |
 | ------- | -------------- |
-| php     | 8.4.3          |
-| laravel | 12             |
-| docker  | custom docker  |
-| db      | mysql/8.0      |
+| PHP     | 8.4.3          |
+| Laravel | 12             |
+| Docker  | Custom Docker  |
+| DB      | MySQL/8.0      |
 
-### Prerequisites
+## Prerequisites
 
-- install [docker](https://docs.docker.com/engine/install/)
-- start docker
-
-<br>
+- Install [Docker](https://docs.docker.com/engine/install/)
+- Start Docker
 
 ## Setup
 
-> ### For local installation
->
->- clone the app to your machine
->
->    ```shell
->    git clone  https://github.com/AbdelrhamanAmin/order-payment.git
->    ```
->
->- ```shell
->    cd order-payment
->   ```
->
->- duplicate `.env.example` to `.env`
->
->    ```shell
->    cp .env.example .env
->    ```
->
->- Run `make up` to get the dev environment booted
->- visit <http://localhost>
->
+### Local Installation
 
-<br>
+1. Clone the repository:
+
+    ```shell
+    git clone https://github.com/AbdelrhamanAmin/job-hub.git
+    ```
+
+2. Navigate to the project directory:
+
+    ```shell
+    cd order-payment
+    ```
+
+3. Duplicate `.env.example` to `.env`:
+
+    ```shell
+    cp .env.example .env
+    ```
+
+4. Start the development environment:
+
+    ```shell
+    make up
+    ```
+
+5. Setup the database and seed data:
+
+    ```shell
+    make local-setup
+    ```
+
+## Technical Details
+
+### Filtering System
+
+The system supports three types of filters:
+
+1. **Basic Filters:** Direct filters on database columns.
+2. **Relation Filters:** Filters applied to related entities.
+3. **EAV Filters:** Filters for dynamic attributes stored in a separate entity-attribute-value (EAV) table, allowing flexibility for job attributes.
+
+### Performance Enhancements
+
+- **Avoids N+1 Queries:** Queries are optimized using eager loading.
+- **Indexing & Pagination:** Database indexing and pagination are implemented to ensure optimal performance.
+- **Optimized Query Structure:** The filtering system dynamically applies conditions to the query builder, reducing redundant queries.
 
 ## Usage
 
-| Command              | Meaning                                  |
-| -------------------- | ---------------------------------------- |
-| `make help`          | list all make commands                   |
-| `make up`            | build docker images                      |
-| `make rebuild`       | rebuilds the Docker images               |
-| `make down`          | stop docker with remove images           |
-| `make migrate`       | Run migrations & run seeders             |
-| `make horizon`       | Start Laravel Horizon                    |
+### Available Commands
 
+| Command              | Description                                  |
+| -------------------- | -------------------------------------------- |
+| `make help`         | List all available make commands            |
+| `make up`          | Build and start Docker containers           |
+| `make rebuild`     | Rebuild Docker images                       |
+| `make down`        | Stop Docker containers and remove images    |
+| `make migrate`     | Run migrations and seeders                  |
+| `make clean`       | Clear application cache                     |
 
+## Filtering System
 
-<br>
+### Filter Structure
 
-### Queue Management with Laravel Horizon
-This project uses Laravel Horizon to manage queues efficiently.
+Filters can be applied using query parameters with the following structure:
 
-> Start Laravel Horizon with the following command:
->   ```sh
->    make horizon
->   ```
->  visit <http://localhost/horizon> to Queues dashboard
+```plaintext
+filter[target_column][operator]=value
+```
 
-### Orders Processing
-To dispatch orders to the queue, you can run:
+For **EAV filtering**, use:
 
->   ```sh
->    ./vendor/bin/sail artisan order:process-orders
->   ```
+```plaintext
+filter[attribute:attribute_name][operator]=value
+```
 
-This is an artisan command that process pending orders in database to the queuing system.
+### Supported Operators
+
+| Operator  | Meaning                 | Example |
+|-----------|-------------------------|---------|
+| `=`       | Equal to                 | `filter[job_type][=]=full-time` |
+| `!=`      | Not equal to             | `filter[status][!=]=closed` |
+| `>`       | Greater than             | `filter[salary_min][>]=5000` |
+| `<`       | Less than                | `filter[salary_max][<]=10000` |
+| `>=`      | Greater than or equal to | `filter[salary_min][>=]=3000` |
+| `<=`      | Less than or equal to    | `filter[salary_max][<=]=8000` |
+| `like`    | Partial match            | `filter[company_name][LIKE]=Tech%` |
+| `in`      | Multiple values          | `filter[job_type][IN]=full-time,part-time` |
+
+### Relation Filtering
+
+To filter based on relations:
+
+```plaintext
+filter[relation][operator]=value
+```
+
+Examples:
+
+```plaintext
+filter[languages][=]=PHP
+filter[locations][LIKE]=London
+```
+
+### EAV Filtering
+
+For dynamic attributes stored in the EAV model:
+
+```plaintext
+filter[attribute:experience_level][=]=junior
+filter[attribute:skills][IN]=PHP,Laravel
+```
+
+## API Endpoint
+
+### Filter Jobs
+
+**Endpoint:**
+
+```plaintext
+GET /api/jobs
+```
+
+**Query Parameters:**
+
+```plaintext
+filter[job_type][=]=full-time
+filter[salary_min][>=]=5000
+filter[locations][=]=London
+filter[attribute:experience_level][=]=junior
+```
+
+**Example Request:**
+
+```shell
+curl -X GET "http://localhost/api/jobs?filter[job_type][=]=full-time&filter[salary_min][>=]=5000"
+```
+
+### Postman Collection
+
+You can find the Postman collection [postman_collection.json] file  in project dir.
+
+## Code Quality
+
+I have applied clean code principles and used design patterns where applicable to keep the code maintainable and scalable.
+
+## Future Enhancements
+
+- Implement a **response handler** for consistent API responses.
+- Add **response resources** for structured endpoint outputs.
+- Implement **unit tests** to ensure reliability.
+
+---
