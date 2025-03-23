@@ -1,0 +1,30 @@
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Category;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Category>
+ */
+class CategoryFactory extends Factory
+{
+    protected $model = Category::class;
+    protected static array $usedNames = []; // Track used names
+
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'name' => $this->faker->randomElement([
+                'Software Development', 'Data Science', 'Product Management', 'Cybersecurity', 'DevOps', 'AI & Machine Learning'
+            ]),
+        ];
+    }
+}
